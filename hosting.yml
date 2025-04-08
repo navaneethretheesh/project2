@@ -1,0 +1,4 @@
+- name: hosting
+  hosts: target1
+  roles:
+    - apacherole

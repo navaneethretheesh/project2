@@ -1,0 +1,63 @@
+- name: install apache
+  package:
+    name: "{{ pack }}"
+    state: present
+
+- name: start and enable apache
+  service:
+    name: "{{ pack }}"
+    state: started
+    enabled: yes
+
+- name: directory for site1
+  file:
+    path: "{{ path1 }}"
+    state: directory
+    mode: '0755'
+
+- name: directory for site2
+  file:
+    path: "{{ path2 }}"
+    state: directory
+    mode: '0755'  
+
+- name: welcomepage setup for site1
+  copy:
+    dest: "{{ path1 }}/index.html"
+    content: "welcome to site1"
+    mode: '0644'
+
+- name: welcomepage setup for site2
+  copy:
+    dest: "{{ path2 }}/index.html"
+    content: "welcome to site2"
+    mode: '0644'
+
+- name: create virtual host config files for site1
+  template:
+    src: site1.conf.j2
+    dest: "{{ vhost_path }}/site1.conf"
+  notify: restart apache
+
+- name: create virtual host config files for site
+  template:
+    src: site2.conf.j2
+    dest: "{{ vhost_path }}/site2.conf"
+  notify: restart apache   
+
+- name: allow http and https
+  firewalld:
+    service: "{{item}}"
+    state: enabled
+    permanent: true
+  loop:
+    - http
+    - https
+
+- name: reload firewall
+  shell: firewall-cmd --reload
+
+- name: selinux
+  selinux:
+    policy: targeted
+    state: permissive
