@@ -8,6 +8,7 @@
     name: "{{ pack }}"
     state: started
     enabled: yes
+  when: ansible_facts['distribution'] == 'RedHat'
 
 - name: directory for site1
   file:
